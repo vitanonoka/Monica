@@ -91,6 +91,7 @@ import takagi.ru.monica.ui.main.navigation.indexToDefaultTabKey
 import takagi.ru.monica.ui.main.navigation.shortLabelRes
 import takagi.ru.monica.ui.main.navigation.toBottomNavItem
 import takagi.ru.monica.ui.password.StackCardMode
+import takagi.ru.monica.ui.securitykey.PhysicalKeyPane
 import takagi.ru.monica.ui.password.resolvePasswordPageVisibleTypes
 import takagi.ru.monica.ui.password.sanitizeSelectedPasswordPageTypes
 import takagi.ru.monica.ui.vaultv2.VaultV2Pane
@@ -2350,6 +2351,14 @@ fun SimpleMainScreen(
                         }
                     )
                 }
+                BottomNavItem.PhysicalKey -> {
+                    PhysicalKeyPane(
+                        passkeys = localPasskeys,
+                        modifier = Modifier.fillMaxSize(),
+                        showStandaloneSettingsEntry = shouldHideBottomNavigation,
+                        onOpenStandaloneSettings = onNavigateToStandaloneSettings,
+                    )
+                }
                 BottomNavItem.Send -> {
                     SendPane(
                         isCompactWidth = isCompactWidth,
@@ -2744,6 +2753,14 @@ fun SimpleMainScreen(
                             onNavigateToAuthenticator = {
                                 selectedTabKey = BottomNavItem.Authenticator.key
                             }
+                        )
+                    }
+                    BottomNavItem.PhysicalKey -> {
+                        PhysicalKeyPane(
+                            passkeys = localPasskeys,
+                            modifier = Modifier.fillMaxSize(),
+                            showStandaloneSettingsEntry = shouldHideBottomNavigation,
+                            onOpenStandaloneSettings = onNavigateToStandaloneSettings,
                         )
                     }
                     BottomNavItem.Send -> {

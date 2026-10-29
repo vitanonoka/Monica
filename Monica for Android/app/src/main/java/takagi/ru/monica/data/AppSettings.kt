@@ -77,6 +77,7 @@ enum class BottomNavContentTab {
     NOTES,
     SEND,         // 发送（安全分享）
     PASSKEY,  // 通行密钥
+    PHYSICAL_KEY, // 物理密钥（FIDO2/YubiKey）
     STEAM;    // Steam local guard
 
     companion object {
@@ -86,6 +87,7 @@ enum class BottomNavContentTab {
             AUTHENTICATOR,
             CARD_WALLET,
             PASSKEY,
+            PHYSICAL_KEY,
             NOTES,
             SEND,
             STEAM
@@ -118,6 +120,7 @@ data class BottomNavVisibility(
     val notes: Boolean = true,        // 笔记功能默认开启
     val send: Boolean = false,        // 发送功能默认关闭
     val passkey: Boolean = true,      // 通行密钥功能默认开启
+    val physicalKey: Boolean = false, // 物理密钥功能默认关闭（按需开启）
     val steam: Boolean = false        // Steam 功能默认隐藏
 ) {
     fun isVisible(tab: BottomNavContentTab): Boolean = when (tab) {
@@ -130,6 +133,7 @@ data class BottomNavVisibility(
         BottomNavContentTab.NOTES -> notes
         BottomNavContentTab.SEND -> send
         BottomNavContentTab.PASSKEY -> passkey
+        BottomNavContentTab.PHYSICAL_KEY -> physicalKey
         BottomNavContentTab.STEAM -> steam
     }
 
@@ -141,6 +145,7 @@ data class BottomNavVisibility(
         generator,
         notes,
         send,
+        physicalKey,
         steam
     ).count { it }
 }

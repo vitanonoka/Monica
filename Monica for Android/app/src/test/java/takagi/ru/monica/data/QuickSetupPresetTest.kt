@@ -54,6 +54,19 @@ class QuickSetupPresetTest {
         }
     }
 
+    @Test fun physicalKeyDockIsOptionalAndIndependentFromPasskeys() {
+        assertFalse(BottomNavVisibility().physicalKey)
+        assertFalse(AppSettings().quickSetupVisibleTabs().contains(BottomNavContentTab.PHYSICAL_KEY))
+
+        val tabs = listOf(BottomNavContentTab.PHYSICAL_KEY, BottomNavContentTab.PASSWORDS)
+        val visibility = quickSetupNavigationVisibility(tabs)
+        assertTrue(visibility.physicalKey)
+        assertFalse(visibility.passkey)
+        val settings = AppSettings(bottomNavOrder = BottomNavContentTab.sanitizeOrder(tabs), bottomNavVisibility = visibility)
+        assertEquals(tabs, settings.quickSetupVisibleTabs())
+        assertTrue(BottomNavContentTab.PHYSICAL_KEY in settings.bottomNavOrder)
+    }
+
     @Test fun legacyPasskeyTabIsRepresentedByTheAuthenticatorAndEmptyDocksAreRejected() {
         val settings = AppSettings(
             bottomNavOrder = listOf(BottomNavContentTab.PASSKEY, BottomNavContentTab.AUTHENTICATOR),

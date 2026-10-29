@@ -24,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,8 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
@@ -63,8 +66,14 @@ import takagi.ru.monica.repository.MdbxRepositoryFactory
 import takagi.ru.monica.repository.MdbxStoredFolderEntry
 import takagi.ru.monica.repository.PasskeyRepository
 import takagi.ru.monica.security.SecurityManager
+import takagi.ru.monica.securitykey.PhysicalKeyViewModel
+import takagi.ru.monica.securitykey.WebAuthnCreateRequest
 import takagi.ru.monica.ui.components.MasterPasswordDialog
 import takagi.ru.monica.ui.components.PasswordEntryPickerBottomSheet
+import takagi.ru.monica.ui.securitykey.PhysicalKeyCreateCard
+import takagi.ru.monica.ui.securitykey.PhysicalKeyPinDialog
+import takagi.ru.monica.ui.securitykey.localized
+import takagi.ru.monica.ui.securitykey.rememberPhysicalKeyConnection
 import takagi.ru.monica.ui.components.UnifiedMoveCategoryTarget
 import takagi.ru.monica.ui.components.UnifiedMoveToCategoryBottomSheet
 import takagi.ru.monica.ui.theme.MonicaTheme
@@ -126,6 +135,10 @@ class PasskeyCreateActivity : FragmentActivity() {
 
     private val securityManager: SecurityManager by lazy {
         SecurityManager(applicationContext)
+    }
+
+    private val physicalKeyViewModel by lazy {
+        ViewModelProvider(this)[PhysicalKeyViewModel::class.java]
     }
 
     private val keepassBridge: KeePassCompatibilityBridge by lazy {
@@ -328,6 +341,9 @@ class PasskeyCreateActivity : FragmentActivity() {
             val settings by settingsManager.settingsFlow.collectAsState(
                 initial = AppSettings(biometricEnabled = false)
             )
+            val physicalKeyState by physicalKeyViewModel.state.collectAsState()
+            var physicalKeySelected by remember { mutableStateOf(false) }
+            val physicalKeyConnection = rememberPhysicalKeyConnection(physicalKeyViewModel)
             val systemDarkTheme = isSystemInDarkTheme()
             val darkTheme = when (settings.themeMode) {
                 ThemeMode.SYSTEM -> systemDarkTheme
@@ -496,7 +512,18 @@ class PasskeyCreateActivity : FragmentActivity() {
                         )
                         setResult(Activity.RESULT_OK, resultIntent)
                         finish()
-                    }
+                    },
+                    physicalKeySelected = physicalKeySelected,
+                    physicalKeyPinRequired = physicalKeyState.pinSet != false,
+                    physicalKeyContent = {
+                        PhysicalKeyCreateCard(
+                            state = physicalKeyState,
+                            selected = physicalKeySelected,
+                            onSelectedChange = { physicalKeySelected = it },
+                            connection = physicalKeyConnection,
+                        )
+                    },
+                    onCreatePhysicalKey = { pin -> createPasskeyOnPhysicalKey(pin) },
                 )
 
                 PasswordEntryPickerBottomSheet(
@@ -925,6 +952,150 @@ class PasskeyCreateActivity : FragmentActivity() {
             finish()
         }
     }
+
+    /**
+     * Creates the credential directly on a connected FIDO2 key. Nothing is stored
+     * in the Monica vault: the authenticator owns the private key and will answer
+     * future assertions for this credential.
+     */
+    private fun createPasskeyOnPhysicalKey(pin: String?) {
+        val requestJson = pendingRequestJson
+        val rpId = pendingRpId
+        val userNameValue = pendingUserName
+        val userDisplayNameValue = pendingUserDisplayName
+        lifecycleScope.launch {
+            runCatching {
+                require(requestJson.isNotBlank() && rpId.isNotBlank()) {
+                    "Missing passkey creation request"
+                }
+                val root = JSONObject(requestJson)
+                val options = root.optJSONObject("publicKey") ?: root
+                val challenge = options.optString("challenge")
+                val clientDataJson = buildCreateClientDataJsonBytes(requestJson, challenge, rpId)
+                val clientDataHash = MessageDigest.getInstance("SHA-256").digest(clientDataJson)
+
+                val rpJson = options.optJSONObject("rp")
+                val userJson = options.optJSONObject("user")
+                val resolvedUserName = userJson?.optString("name")
+                    ?.takeIf { it.isNotBlank() } ?: userNameValue
+                val resolvedDisplayName = userJson?.optString("displayName")
+                    ?.takeIf { it.isNotBlank() } ?: userDisplayNameValue
+                val userId = decodeBase64Url(userJson?.optString("id"))
+                    ?: MessageDigest.getInstance("SHA-256")
+                        .digest("$rpId:$resolvedUserName".toByteArray(Charsets.UTF_8))
+
+                val algorithms = options.optJSONArray("pubKeyCredParams")
+                    ?.let { array ->
+                        (0 until array.length()).mapNotNull { index ->
+                            val algorithm = array.optJSONObject(index)
+                                ?.optInt("alg", Int.MIN_VALUE) ?: Int.MIN_VALUE
+                            algorithm.takeIf { it != Int.MIN_VALUE }
+                        }
+                    }
+                    .orEmpty()
+                    .ifEmpty { listOf(PasskeyEntry.ALGORITHM_ES256) }
+
+                val excludeCredentialIds = options.optJSONArray("excludeCredentials")
+                    ?.let { array ->
+                        (0 until array.length()).mapNotNull { index ->
+                            decodeBase64Url(array.optJSONObject(index)?.optString("id"))
+                        }
+                    }
+                    .orEmpty()
+
+                val hasAuthenticatorSelection =
+                    options.optJSONObject("authenticatorSelection") != null
+                val residentKey = if (hasAuthenticatorSelection) {
+                    PasskeyDiscoverabilityResolver.isDiscoverableCreationRequest(requestJson)
+                } else {
+                    true
+                }
+
+                val created = physicalKeyViewModel.createWebAuthnCredential(
+                    WebAuthnCreateRequest(
+                        clientDataHash = clientDataHash,
+                        rpId = rpId,
+                        rpName = rpJson?.optString("name")?.takeIf { it.isNotBlank() },
+                        userId = userId,
+                        userName = resolvedUserName.takeIf { it.isNotBlank() },
+                        userDisplayName = resolvedDisplayName.takeIf { it.isNotBlank() },
+                        algorithms = algorithms,
+                        excludeCredentialIds = excludeCredentialIds,
+                        requireResidentKey = residentKey,
+                        pin = pin,
+                    )
+                ).getOrThrow()
+
+                val credentialIdB64 = encodeBase64Url(created.credentialId)
+                val responseJson = JSONObject().apply {
+                    put("id", credentialIdB64)
+                    put("rawId", credentialIdB64)
+                    put("type", "public-key")
+                    put("authenticatorAttachment", "cross-platform")
+                    put("response", JSONObject().apply {
+                        put("clientDataJSON", encodeBase64Url(clientDataJson))
+                        put("attestationObject", encodeBase64Url(created.attestationObject))
+                        put("transports", JSONArray(created.transports.toList()))
+                    })
+                    put("clientExtensionResults", JSONObject().apply {
+                        put("credProps", JSONObject().put("rk", residentKey))
+                    })
+                }
+
+                repository.logAudit(
+                    "PASSKEY_CREATE_PHYSICAL_KEY_SUCCESS",
+                    "$credentialIdB64|rpId=$rpId"
+                )
+                recordPasskeyEvent(
+                    stage = "result_sent",
+                    requestJson = requestJson,
+                    rpId = rpId,
+                    credentialId = credentialIdB64,
+                )
+                val resultIntent = Intent()
+                PendingIntentHandler.setCreateCredentialResponse(
+                    resultIntent,
+                    CreatePublicKeyCredentialResponse(responseJson.toString())
+                )
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }.onFailure { error ->
+                Log.e(TAG, "Failed to create passkey on physical key", error)
+                repository.logAudit(
+                    "PASSKEY_CREATE_PHYSICAL_KEY_ERROR",
+                    "rpId=$rpId|error=${error.message}"
+                )
+                recordPasskeyEvent(
+                    stage = "create_failed",
+                    requestJson = requestJson,
+                    rpId = rpId,
+                    errorType = error.javaClass.simpleName,
+                    errorMessage = error.message,
+                )
+                val resultIntent = Intent()
+                PendingIntentHandler.setCreateCredentialException(
+                    resultIntent,
+                    CreateCredentialUnknownException(
+                        error.message ?: "Physical key creation failed"
+                    )
+                )
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
+        }
+    }
+
+    private fun decodeBase64Url(value: String?): ByteArray? {
+        if (value.isNullOrBlank()) return null
+        return runCatching {
+            Base64.decode(value, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+        }.recoverCatching {
+            Base64.decode(value, Base64.DEFAULT)
+        }.getOrNull()?.takeIf { it.isNotEmpty() }
+    }
+
+    private fun encodeBase64Url(value: ByteArray): String =
+        Base64.encodeToString(value, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
 
     private fun rollbackCreatedPasskeyIfNeeded(
         credentialId: String?,
@@ -1363,10 +1534,15 @@ private fun PasskeyCreateScreen(
     getMdbxFolders: (Long) -> kotlinx.coroutines.flow.Flow<List<MdbxStoredFolderEntry>>,
     onCreateDirect: () -> Unit,
     onBindToPassword: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    physicalKeySelected: Boolean = false,
+    physicalKeyPinRequired: Boolean = false,
+    physicalKeyContent: @Composable () -> Unit = {},
+    onCreatePhysicalKey: (String?) -> Unit = {},
 ) {
     var isCreating by remember { mutableStateOf(false) }
     var showStoragePicker by remember { mutableStateOf(false) }
+    var showPhysicalKeyPinDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val database = remember(context) { PasswordDatabase.getDatabase(context) }
     val selectedBitwardenVault = bitwardenVaults.find { it.id == selectedBitwardenVaultId }
@@ -1439,8 +1615,19 @@ private fun PasskeyCreateScreen(
                 ) {
                     Button(
                         onClick = {
-                            isCreating = true
-                            onCreateDirect()
+                            when {
+                                physicalKeySelected && physicalKeyPinRequired -> {
+                                    showPhysicalKeyPinDialog = true
+                                }
+                                physicalKeySelected -> {
+                                    isCreating = true
+                                    onCreatePhysicalKey(null)
+                                }
+                                else -> {
+                                    isCreating = true
+                                    onCreateDirect()
+                                }
+                            }
                         },
                         enabled = !isCreating,
                         modifier = Modifier
@@ -1466,7 +1653,7 @@ private fun PasskeyCreateScreen(
 
                     FilledTonalButton(
                         onClick = onBindToPassword,
-                        enabled = !isCreating,
+                        enabled = !isCreating && !physicalKeySelected,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -1568,8 +1755,11 @@ private fun PasskeyCreateScreen(
             }
 
             ElevatedCard(
-                onClick = { showStoragePicker = true },
-                modifier = Modifier.fillMaxWidth(),
+                onClick = { if (!physicalKeySelected) showStoragePicker = true },
+                enabled = !physicalKeySelected,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(if (physicalKeySelected) 0.55f else 1f),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -1619,6 +1809,8 @@ private fun PasskeyCreateScreen(
                     )
                 }
             }
+
+            physicalKeyContent()
 
             UnifiedMoveToCategoryBottomSheet(
                 visible = showStoragePicker,
@@ -1712,6 +1904,17 @@ private fun PasskeyCreateScreen(
                 }
             )
         }
+    }
+
+    if (showPhysicalKeyPinDialog) {
+        PhysicalKeyPinDialog(
+            onDismiss = { showPhysicalKeyPinDialog = false },
+            onConfirm = { pin ->
+                showPhysicalKeyPinDialog = false
+                isCreating = true
+                onCreatePhysicalKey(pin)
+            },
+        )
     }
 }
 

@@ -1759,6 +1759,7 @@ private fun BottomNavContentTab.toIcon(): ImageVector = when (this) {
     BottomNavContentTab.GENERATOR -> Icons.Default.AutoAwesome
     BottomNavContentTab.NOTES -> Icons.Default.Note
     BottomNavContentTab.PASSKEY -> Icons.Default.Key
+    BottomNavContentTab.PHYSICAL_KEY -> Icons.Default.Usb
     BottomNavContentTab.SEND -> Icons.AutoMirrored.Default.Send
     BottomNavContentTab.STEAM -> SteamDockIcon
 }
@@ -1771,6 +1772,7 @@ private fun BottomNavContentTab.toLabelRes(): Int = when (this) {
     BottomNavContentTab.GENERATOR -> R.string.nav_generator
     BottomNavContentTab.NOTES -> R.string.nav_notes
     BottomNavContentTab.PASSKEY -> R.string.nav_passkey
+    BottomNavContentTab.PHYSICAL_KEY -> R.string.nav_physical_key
     BottomNavContentTab.SEND -> R.string.nav_v2_send
     BottomNavContentTab.STEAM -> R.string.nav_steam
 }

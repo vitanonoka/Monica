@@ -32,6 +32,7 @@ With a stunning **Material You** interface, seamless **Autofill** integration, a
 *   **Rich Entries**: Store more than just passwords. Add **websites**, **notes**, **emails**, **phone numbers**, and custom tags.
 *   **Password Generator**: Generate cryptographically identifying passwords with customizable rules (length, charset, entropy).
 *   **History & Recycle Bin**: Accidentally deleted something? Recover it from the recycle bin. view previous password versions in history.
+*   **Physical Security Keys**: An optional Dock page connects FIDO2/YubiKey authenticators over NFC or USB, writes discoverable passkeys, and manages the key PIN and resident credentials.
 
 ### �️ Next-Level TOTP Authenticator
 *   **Integrated 2FA**: No need for a separate authenticator app.

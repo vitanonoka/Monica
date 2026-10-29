@@ -451,6 +451,7 @@ private data class PageAdjustmentSettingsBackupEntry(
     val bottomNavVisibilityNotes: Boolean = false,
     val bottomNavVisibilitySend: Boolean = false,
     val bottomNavVisibilityPasskey: Boolean = true,
+    val bottomNavVisibilityPhysicalKey: Boolean = false,
     val bottomNavVisibilitySteam: Boolean = false,
     val autoHideBottomNavWhenSingleTab: Boolean = false,
     val passwordListQuickAccessEnabled: Boolean = true,
@@ -779,6 +780,7 @@ class WebDavHelper(
             bottomNavVisibilityNotes = bottomNavVisibilityNotes,
             bottomNavVisibilitySend = bottomNavVisibilitySend,
             bottomNavVisibilityPasskey = bottomNavVisibilityPasskey,
+            bottomNavVisibilityPhysicalKey = bottomNavVisibilityPhysicalKey,
             bottomNavVisibilitySteam = bottomNavVisibilitySteam,
             autoHideBottomNavWhenSingleTab = autoHideBottomNavWhenSingleTab,
             passwordListQuickAccessEnabled = passwordListQuickAccessEnabled,
@@ -4144,6 +4146,8 @@ class WebDavHelper(
                                                     pageAdjustmentBackup.bottomNavVisibilitySend,
                                                 bottomNavVisibilityPasskey =
                                                     pageAdjustmentBackup.bottomNavVisibilityPasskey,
+                                                bottomNavVisibilityPhysicalKey =
+                                                    pageAdjustmentBackup.bottomNavVisibilityPhysicalKey,
                                                 bottomNavVisibilitySteam =
                                                     pageAdjustmentBackup.bottomNavVisibilitySteam,
                                                 autoHideBottomNavWhenSingleTab =

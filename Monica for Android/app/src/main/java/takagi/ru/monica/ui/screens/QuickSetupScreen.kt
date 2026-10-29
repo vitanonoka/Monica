@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Button
@@ -1309,6 +1310,7 @@ private fun tabLabelRes(tab: BottomNavContentTab): Int = when (tab) {
     BottomNavContentTab.NOTES -> R.string.nav_notes
     BottomNavContentTab.SEND -> R.string.nav_v2_send
     BottomNavContentTab.PASSKEY -> R.string.nav_passkey
+    BottomNavContentTab.PHYSICAL_KEY -> R.string.nav_physical_key
     BottomNavContentTab.STEAM -> R.string.nav_steam
 }
 
@@ -1322,6 +1324,7 @@ private fun tabShortLabelRes(tab: BottomNavContentTab): Int = when (tab) {
     BottomNavContentTab.NOTES -> R.string.nav_notes_short
     BottomNavContentTab.SEND -> R.string.nav_v2_send_short
     BottomNavContentTab.PASSKEY -> R.string.nav_passkey_short
+    BottomNavContentTab.PHYSICAL_KEY -> R.string.nav_physical_key_short
     BottomNavContentTab.STEAM -> R.string.nav_steam_short
 }
 
@@ -1334,5 +1337,6 @@ private fun tabIcon(tab: BottomNavContentTab): ImageVector = when (tab) {
     BottomNavContentTab.NOTES -> Icons.Default.Note
     BottomNavContentTab.SEND -> Icons.Default.Send
     BottomNavContentTab.PASSKEY -> Icons.Default.Key
+    BottomNavContentTab.PHYSICAL_KEY -> Icons.Default.Usb
     BottomNavContentTab.STEAM -> SteamDockIcon
 }

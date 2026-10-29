@@ -2,7 +2,7 @@
 
 Date: 2026-10-12. Ordinary 1.0.319/versionCode 12 and F-Droid 1.0.319/versionCode 26 remain unreleased.
 
-The Nya (zh-NY) and Snow Leopard (zh-XB) language packs, their selection labels and Snow Leopard launcher resources have been removed from active Android sources. The original files are archived under the repository-root `彩蛋语言备份/` directory, outside Android source sets. Existing generator files, documentation and dedicated tests are archived where they existed. Removed labels from shared resource files are preserved separately under `entry-labels/`.
+The Nya (zh-NY) and Snow Leopard (zh-XB) language packs, their selection labels and Snow Leopard launcher resources have been removed from active Android sources. The original files were later removed from the repository together with the `彩蛋语言备份/` archive. Existing generator files, documentation and dedicated tests are archived where they existed. Removed labels from shared resource files are preserved separately under `entry-labels/`.
 
 SHA-256 checks verified all 55 ordinary and 52 F-Droid original files against both the local archives and staged Git blobs. Archive-only Git attributes preserve original bytes and historical whitespace across checkout platforms. The archived PNG is the original launcher asset, not a developer screenshot.
 

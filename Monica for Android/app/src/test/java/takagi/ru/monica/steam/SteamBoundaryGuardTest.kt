@@ -53,19 +53,21 @@ class SteamBoundaryGuardTest {
 
     @Test
     fun steamDockIsPresentButHiddenByDefault() {
-        val oldVisibleOrder = listOf(
+        val knownOrder = listOf(
             BottomNavContentTab.VAULT_V2,
             BottomNavContentTab.PASSWORDS,
             BottomNavContentTab.AUTHENTICATOR,
             BottomNavContentTab.CARD_WALLET,
             BottomNavContentTab.PASSKEY,
+            BottomNavContentTab.PHYSICAL_KEY,
             BottomNavContentTab.NOTES,
             BottomNavContentTab.SEND
         )
 
-        assertEquals(oldVisibleOrder, BottomNavContentTab.DEFAULT_ORDER.take(oldVisibleOrder.size))
+        assertEquals(knownOrder, BottomNavContentTab.DEFAULT_ORDER.take(knownOrder.size))
         assertEquals(BottomNavContentTab.STEAM, BottomNavContentTab.DEFAULT_ORDER.last())
         assertFalse(BottomNavVisibility().isVisible(BottomNavContentTab.STEAM))
+        assertFalse(BottomNavVisibility().isVisible(BottomNavContentTab.PHYSICAL_KEY))
         assertEquals(4, BottomNavVisibility().visibleCount())
     }
 

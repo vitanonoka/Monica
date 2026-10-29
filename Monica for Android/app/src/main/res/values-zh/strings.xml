@@ -877,6 +877,7 @@
     <string name="nav_notes">笔记</string>
     <string name="nav_generator">生成器</string>  <!-- 添加生成器导航标签 -->
     <string name="nav_timeline">时间线</string>
+    <string name="nav_physical_key">物理密钥</string>
     <string name="nav_passkey">通行密钥</string>
     <string name="nav_steam">Steam</string>
     <string name="nav_settings">设置</string>
@@ -894,6 +895,7 @@
     <string name="nav_notes_short">笔记</string>
     <string name="nav_generator_short">生成</string>  <!-- 添加生成器导航短标签 -->
     <string name="nav_timeline_short">历史</string>
+    <string name="nav_physical_key_short">物理</string>
     <string name="nav_passkey_short">通行</string>
     <string name="nav_steam_short">Steam</string>
     <string name="nav_settings_short">设置</string>

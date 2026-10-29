@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.ui.graphics.vector.ImageVector
 import takagi.ru.monica.R
@@ -30,6 +31,7 @@ sealed class BottomNavItem(
     object Notes : BottomNavItem(BottomNavContentTab.NOTES, Icons.Default.Note)
     object Send : BottomNavItem(BottomNavContentTab.SEND, Icons.Default.Send)
     object Passkey : BottomNavItem(BottomNavContentTab.PASSKEY, Icons.Default.Key)
+    object PhysicalKey : BottomNavItem(BottomNavContentTab.PHYSICAL_KEY, Icons.Default.Usb)
     object Steam : BottomNavItem(BottomNavContentTab.STEAM, SteamDockIcon)
     object Settings : BottomNavItem(null, Icons.Default.Settings)
 }
@@ -43,6 +45,7 @@ fun BottomNavContentTab.toBottomNavItem(): BottomNavItem = when (this) {
     BottomNavContentTab.NOTES -> BottomNavItem.Notes
     BottomNavContentTab.SEND -> BottomNavItem.Send
     BottomNavContentTab.PASSKEY -> BottomNavItem.Passkey
+    BottomNavContentTab.PHYSICAL_KEY -> BottomNavItem.PhysicalKey
     BottomNavContentTab.STEAM -> BottomNavItem.Steam
 }
 
@@ -55,6 +58,7 @@ fun BottomNavItem.fullLabelRes(): Int = when (this) {
     BottomNavItem.Notes -> R.string.nav_notes
     BottomNavItem.Send -> R.string.nav_v2_send
     BottomNavItem.Passkey -> R.string.nav_passkey
+    BottomNavItem.PhysicalKey -> R.string.nav_physical_key
     BottomNavItem.Steam -> R.string.nav_steam
     BottomNavItem.Settings -> R.string.nav_settings
 }
@@ -68,6 +72,7 @@ fun BottomNavItem.shortLabelRes(): Int = when (this) {
     BottomNavItem.Notes -> R.string.nav_notes_short
     BottomNavItem.Send -> R.string.nav_v2_send_short
     BottomNavItem.Passkey -> R.string.nav_passkey_short
+    BottomNavItem.PhysicalKey -> R.string.nav_physical_key_short
     BottomNavItem.Steam -> R.string.nav_steam_short
     BottomNavItem.Settings -> R.string.nav_settings_short
 }

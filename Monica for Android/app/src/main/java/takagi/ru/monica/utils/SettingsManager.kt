@@ -108,6 +108,7 @@ data class PageAdjustmentSettingsSnapshot(
     val bottomNavVisibilityNotes: Boolean = false,
     val bottomNavVisibilitySend: Boolean = false,
     val bottomNavVisibilityPasskey: Boolean = true,
+    val bottomNavVisibilityPhysicalKey: Boolean = false,
     val bottomNavVisibilitySteam: Boolean = false,
     val autoHideBottomNavWhenSingleTab: Boolean = false,
     val passwordListQuickAccessEnabled: Boolean = true,
@@ -191,6 +192,7 @@ class SettingsManager(private val context: Context) {
         private val SHOW_GENERATOR_TAB_KEY = booleanPreferencesKey("show_generator_tab")  // 添加生成器标签键
         private val SHOW_SEND_TAB_KEY = booleanPreferencesKey("show_send_tab")
         private val SHOW_PASSKEY_TAB_KEY = booleanPreferencesKey("show_passkey_tab")  // 添加 Passkey 标签键
+        private val SHOW_PHYSICAL_KEY_TAB_KEY = booleanPreferencesKey("show_physical_key_tab")
         private val SHOW_STEAM_TAB_KEY = booleanPreferencesKey("show_steam_tab")
         private val DYNAMIC_COLOR_ENABLED_KEY = booleanPreferencesKey("dynamic_color_enabled")
         private val BOTTOM_NAV_ORDER_KEY = stringPreferencesKey("bottom_nav_order")
@@ -558,6 +560,7 @@ class SettingsManager(private val context: Context) {
                 notes = preferences[SHOW_NOTES_TAB_KEY] ?: false,
                 send = preferences[SHOW_SEND_TAB_KEY] ?: false,
                 passkey = preferences[SHOW_PASSKEY_TAB_KEY] ?: true,
+                physicalKey = preferences[SHOW_PHYSICAL_KEY_TAB_KEY] ?: false,
                 steam = preferences[SHOW_STEAM_TAB_KEY] ?: false
             ),
             bottomNavOrder = sanitizedOrder,
@@ -843,6 +846,7 @@ class SettingsManager(private val context: Context) {
                 BottomNavContentTab.NOTES -> preferences[SHOW_NOTES_TAB_KEY] = visible
                 BottomNavContentTab.SEND -> preferences[SHOW_SEND_TAB_KEY] = visible
                 BottomNavContentTab.PASSKEY -> preferences[SHOW_PASSKEY_TAB_KEY] = visible
+                BottomNavContentTab.PHYSICAL_KEY -> preferences[SHOW_PHYSICAL_KEY_TAB_KEY] = visible
                 BottomNavContentTab.STEAM -> preferences[SHOW_STEAM_TAB_KEY] = visible
             }
         }
@@ -887,6 +891,7 @@ class SettingsManager(private val context: Context) {
         this[SHOW_NOTES_TAB_KEY] = visibility.notes
         this[SHOW_SEND_TAB_KEY] = visibility.send
         this[SHOW_PASSKEY_TAB_KEY] = visibility.passkey
+        this[SHOW_PHYSICAL_KEY_TAB_KEY] = visibility.physicalKey
         this[SHOW_STEAM_TAB_KEY] = visibility.steam
         this[AUTO_HIDE_BOTTOM_NAV_WHEN_SINGLE_TAB_KEY] = false
     }
@@ -1380,6 +1385,7 @@ class SettingsManager(private val context: Context) {
             bottomNavVisibilityNotes = settings.bottomNavVisibility.notes,
             bottomNavVisibilitySend = settings.bottomNavVisibility.send,
             bottomNavVisibilityPasskey = settings.bottomNavVisibility.passkey,
+            bottomNavVisibilityPhysicalKey = settings.bottomNavVisibility.physicalKey,
             bottomNavVisibilitySteam = settings.bottomNavVisibility.steam,
             autoHideBottomNavWhenSingleTab = settings.autoHideBottomNavWhenSingleTab,
             passwordListQuickAccessEnabled = settings.passwordListQuickAccessEnabled,
@@ -1559,6 +1565,7 @@ class SettingsManager(private val context: Context) {
                 preferences[SHOW_NOTES_TAB_KEY] = snapshot.bottomNavVisibilityNotes
                 preferences[SHOW_SEND_TAB_KEY] = snapshot.bottomNavVisibilitySend
                 preferences[SHOW_PASSKEY_TAB_KEY] = snapshot.bottomNavVisibilityPasskey
+                preferences[SHOW_PHYSICAL_KEY_TAB_KEY] = snapshot.bottomNavVisibilityPhysicalKey
                 preferences[SHOW_STEAM_TAB_KEY] = snapshot.bottomNavVisibilitySteam
                 preferences[AUTO_HIDE_BOTTOM_NAV_WHEN_SINGLE_TAB_KEY] =
                     snapshot.autoHideBottomNavWhenSingleTab

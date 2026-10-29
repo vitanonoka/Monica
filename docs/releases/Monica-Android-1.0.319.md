@@ -10,7 +10,7 @@
 - 同步前说明通行密钥的跨设备限制，可勾选“不再提醒”，并在诊断中查看限制及恢复提醒。签名计数非零的 Passkey 会跳过；不可导出的系统／硬件密钥仅同步凭据信息，可导出密钥在接收端重新加密保存。跨端使用需双方安装兼容版本。
 - 提供同步进度、连接诊断和失败处理建议；校验及保存完成后才确认成功，离线冲突保留副本。
 
-- 移除喵喵语、芝士雪豹语和雪豹彩蛋图标，原始语言与图标资源归档至“彩蛋语言备份”；旧语言设置自动恢复简体中文，保留升级后的正常桌面入口。
+- 移除喵喵语、芝士雪豹语和雪豹彩蛋图标，原始语言与图标资源已随备份目录清理移除；旧语言设置自动恢复简体中文，保留升级后的正常桌面入口。
 
 - 修复 MDBX 格式检查遇到损坏数据库时的错误分类，并禁止 Android 默认损坏处理器删除原文件，保留后续恢复所需的数据。
 
@@ -39,7 +39,7 @@
 - Passkey review explains cross-device restrictions, offers a persistent “Don’t show again” choice and lets you inspect limits or restore reminders in diagnostics. Passkeys with nonzero signature counters are skipped. Non-exportable system/hardware keys sync credential metadata only; exportable keys are encrypted again on receipt. Both devices need compatible app versions.
 - View sync progress, connection diagnostics and failure guidance. Success is confirmed after validation and saving; offline conflicts retain copies.
 
-- Removed the Nya and Snow Leopard Easter egg languages and Snow Leopard icon. Original resources are archived in “彩蛋语言备份”; existing selections migrate to Simplified Chinese while preserving a working launcher entry.
+- Removed the Nya and Snow Leopard Easter egg languages and Snow Leopard icon. Original resources were removed together with the backup directory; existing selections migrate to Simplified Chinese while preserving a working launcher entry.
 
 - Fixed MDBX format checks misclassifying corrupt databases and prevented Android's default corruption handler from deleting the original file, preserving it for recovery.
 

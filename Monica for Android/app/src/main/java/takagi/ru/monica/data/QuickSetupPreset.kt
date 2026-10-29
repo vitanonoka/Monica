@@ -67,6 +67,7 @@ fun quickSetupNavigationVisibility(tabs: List<BottomNavContentTab>): BottomNavVi
         notes = BottomNavContentTab.NOTES in tabs,
         send = BottomNavContentTab.SEND in tabs,
         passkey = authenticator,
+        physicalKey = BottomNavContentTab.PHYSICAL_KEY in tabs,
         steam = BottomNavContentTab.STEAM in tabs,
     )
 }

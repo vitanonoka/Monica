@@ -870,6 +870,7 @@
     <string name="nav_ledger">Ledger</string>
     <string name="nav_generator">Generator</string>  <!-- 添加生成器导航标签 -->
     <string name="nav_timeline">Timeline</string>
+    <string name="nav_physical_key">Physical key</string>
     <string name="nav_passkey">Passkey</string>
     <string name="nav_steam">Steam</string>
     <string name="nav_settings">Settings</string>
@@ -887,6 +888,7 @@
     <string name="nav_ledger_short">Ledger</string>
     <string name="nav_generator_short">Gen</string>  <!-- 添加生成器导航短标签 -->
     <string name="nav_timeline_short">History</string>
+    <string name="nav_physical_key_short">Phys</string>
     <string name="nav_passkey_short">Pass</string>
     <string name="nav_steam_short">Steam</string>
     <string name="nav_settings_short">Set</string>

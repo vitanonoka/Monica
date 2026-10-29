@@ -4,6 +4,11 @@
 
 ## 中文
 
+- 新增可选的“物理密钥”底栏页面（默认关闭，可在“底部导航”或快速设置中开启）。支持通过 NFC 或 USB 连接 FIDO2/YubiKey 安全密钥，查看 AAGUID、协议、固件和 PIN 状态，设置或更改密钥 PIN。
+- 物理密钥页面可读取并删除密钥中的可发现凭据，也可从保险库通行密钥填入网站与账号信息，在密钥上写入新的可发现通行密钥。私钥始终由物理密钥生成，Monica 仅保存元数据；实现移植自 Authnkey 的纯 Kotlin CTAP2 栈，不新增 Yubico SDK 或 Credentials 依赖。
+- 底栏排序、显示开关、快速设置预览、自动隐藏与 WebDAV 设置备份均已同步支持物理密钥选项；物理密钥与通行密钥相互独立，默认不占用底栏。
+- 创建通行密钥界面新增“物理密钥”选项：连接 NFC 或 USB 密钥后即可选择，并直接在密钥中生成通行密钥；未连接时选项置灰。
+
 - 修复部分笔记内容显示为 `MDK|…` 乱码的问题。附近设备同步接收的笔记，以及从数据库导出包恢复的笔记，曾以加密形式写入本地，笔记列表与详情直接显示了密文。现在接收和恢复的笔记保持笔记原有的存储格式；解锁后会自动将已受影响的笔记恢复为原文，包括已在编辑器中再次保存过的笔记，不改变修改时间和同步归属。
 
 - 修复 HOTP 点击“生成下一个”后跳到列表最前面的问题。验证码顺序保留收藏优先级和手动排序，默认顺序不再随计数器更新而变化；计数器与同步修改时间仍正常更新。
@@ -19,6 +24,11 @@
 - 无障碍恢复仍需手动启用后台保护和增强恢复，仅重连已开启的 Monica 服务；默认密码管理器保留配置备份、写入校验和恢复功能，仍需 Android 14 或更新版本。
 
 ## English
+
+- Added an optional Physical key Dock page, disabled by default and available from Bottom navigation or Quick setup. It connects FIDO2/YubiKey security keys over NFC or USB and shows AAGUID, protocols, firmware, and PIN status, with controls to set or change the key PIN.
+- The page can enumerate and delete discoverable credentials on the key, or prefill a relying party and account from a vault passkey and write a new discoverable passkey to the key. Private keys are always generated on the key; Monica stores metadata only. The implementation ports Authnkey's pure-Kotlin CTAP2 stack without adding the Yubico SDK or Credentials dependencies.
+- Bottom-navigation ordering, visibility toggles, Quick setup preview, auto-hide, and WebDAV settings backup now include the physical-key option. The physical-key page is independent of vault passkeys and does not occupy the Dock by default.
+- The passkey creation screen now offers a Physical key option. After connecting a key over NFC or USB, select it to create the passkey directly on the key; the option stays greyed out until a key is connected.
 
 - Fixed some notes showing garbled `MDK|…` text. Notes received through nearby device sync, or restored from a database export archive, were stored locally in encrypted form, so the note list and details displayed the ciphertext. Received and restored notes now keep the regular note storage format, and affected notes, including ones saved again from the editor, are restored to their original text after unlocking without changing modification times or sync ownership.
 
